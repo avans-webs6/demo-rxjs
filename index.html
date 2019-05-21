@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .steps {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Demo RXJS</h2>
+
+    <p>Zie console...</p>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.1.0/rxjs.umd.js"></script>
+    <script>
+
+        
+
+        //advanced observables
+
+        let users = [
+            { name: "Stijn", hobbys: [1, 2, 3, 4], isActive: true },
+            { name: "Ger", hobbys: [2], isActive: true },
+            { name: "Stefan", hobbys: [3], isActive: false }
+        ]
+
+        let hobbys = [
+            { id: 1, name: "Tennis" },
+            { id: 2, name: "Squash" },
+            { id: 3, name: "Ping Pong" }
+
+        ];
+
+        //let userStream = new rxjs.BehaviorSubject();
+        let userStream = new rxjs.Subject();
+        let hobbyStream = new rxjs.Subject();
+
+        // userStream
+        //     .pipe(rxjs.operators.mergeMap(users => {
+        //         //hier hangen
+        //         return hobbyStream.pipe(rxjs.operators.map(hobbys => {
+                    
+        //             //logic!
+        //             return users.map(user => {
+        //                 user.realhobbys = [];
+        //                 hobbys.forEach(hobby => {
+        //                     if (user.hobbys.indexOf(hobby.id) != -1) {
+        //                         user.realhobbys.push(hobby);
+        //                     }
+        //                 });
+        //                 return user;
+        //             });
+
+        //         }))
+        //     }))
+        //     .subscribe(users => {
+        //         console.log(users);
+        //     })
+
+
+
+
+
+        let latestStream = rxjs.combineLatest(userStream, hobbyStream)
+            .pipe(rxjs.operators.map(([users, hobbys]) => {
+                users = users.filter(u => u.isActive);
+                return users.map(user => {
+                    user.realhobbys = [];
+                    hobbys.forEach(h => {
+                        if (user.hobbys.indexOf(h.id) != -1) {
+                            user.realhobbys.push(h);
+                        }
+                    });
+                    return user;
+                });
+            }));
+        
+        latestStream.subscribe(data => console.log(data));
+
+        //init
+        userStream.next(users);
+        hobbyStream.next(hobbys);
+
+        users.push({name: "Dr boom", isActive: true, hobbys: [0]})
+        userStream.next(users);
+
+        hobbys.push({ id: 4, name: "Badminton" })
+        hobbyStream.next(hobbys);
+
+        
+        // bothStream.subscribe(data => {
+        //     //console.log(data);
+        // })
+
+        // latestStream.subscribe(data => {
+        //     //console.log(data);
+        // })
+
+        // userStream.next(users);
+        // hobbyStream.next(hobbys);
+
+        // users.push({name: "Dr boom", isActive: true, hobbys: [0]})
+        // userStream.next(users);
+
+        //hobbys.push({ id: 4, name: "Badminton" })
+        //hobbyStream.next(hobbys);
+
+
+    </script>
+</body>
+
+</html>
